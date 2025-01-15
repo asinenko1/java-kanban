@@ -1,3 +1,8 @@
+import manager.TaskManager;
+import tasks.Epic;
+import tasks.Subtask;
+import tasks.Task;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager manager = new TaskManager();
@@ -9,7 +14,9 @@ public class Main {
         manager.addTask(task1);
 
         Subtask subtask1 = new Subtask("Составить план действий", "Постараться не сойти с ума", epic1.getId());
+        Subtask subtask2 = new Subtask("Выполнить все уроки", "Отправить дз на проверку", epic1.getId());
         manager.addSubtask(subtask1);
+        manager.addSubtask(subtask2);
 
         System.out.println("Все задачи: " + manager.getAllTasks());
         System.out.println("Все эпики: " + manager.getAllEpics());
