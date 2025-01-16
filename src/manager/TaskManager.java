@@ -111,7 +111,7 @@ public class TaskManager {
         if (subtasks.containsKey(id)){
             Subtask subtask = subtasks.remove(id);
             Epic epic = epics.get(subtask.getEpicId());
-            epic.getSubtasksId().remove(id);
+            epic.getSubtasksId().remove(Integer.valueOf(id));
             epicStatus(epic);
 
         } else {
@@ -123,13 +123,16 @@ public class TaskManager {
     public void updateTask (Task task) {
 
         if (tasks.containsKey(task.getId())){
-            updateStatus(task);
             tasks.put(task.getId(), task);
         } else if (epics.containsKey(task.getId())){
-            System.out.println("Невозможно изменить задачу в ручную. Она меняется автоматически с изменением подзадач.");
+            Epic epic = epics.get(task.getId());
+            if (epic == null) {
+                return;
+            }
+            epic.setName(task.getName());
+            epic.setDescription(task.getDescription());
         } else if (subtasks.containsKey(task.getId())){
             Subtask subtask = subtasks.get(task.getId());
-            updateStatus(subtask);
             subtasks.put(task.getId(), subtask);
 
             Epic epic = epics.get(subtask.getEpicId());
@@ -140,15 +143,6 @@ public class TaskManager {
         }
     }
 
-    private void updateStatus(Task task) {
-        if (task.getStatus() == TaskStatus.NEW) {
-            task.setStatus(TaskStatus.IN_PROGRESS);
-        } else if (task.getStatus() == TaskStatus.IN_PROGRESS) {
-            task.setStatus(TaskStatus.DONE);
-        } else {
-            System.out.println("Задача с ID " + task.getId() + " уже завершена.");
-        }
-    }
 
     private void epicStatus(Epic epic) {
         if (epic.getSubtasksId().isEmpty()) {
