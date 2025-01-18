@@ -13,6 +13,11 @@ public class Subtask extends Task {
     }
 
     public void setEpicId(int epicId) {
-        this.epicId = epicId;
+        if (epicId == this.getId()) {
+            System.out.println("Подзадачу нельзя сделать своим же эпиком!");
+            return;
+        } else {
+            this.epicId = epicId;
+        }
     }
 }

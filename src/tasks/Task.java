@@ -14,7 +14,11 @@ public class Task {
     }
 
     public void setId(int newID) {
-        id = newID;
+        if (newID < 0) {
+            System.out.println("Id должен быть больше нуля!");
+            return;
+        }
+        this.id = newID;
     }
 
     public int getId() {
