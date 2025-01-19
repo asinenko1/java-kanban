@@ -1,30 +1,41 @@
 package manager;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskManagerTest {
+
+    private Task task;
+    private Epic epic;
+    private Subtask subtask;
+    private InMemoryTaskManager taskManager;
+
+    @BeforeEach
+    void init() {
+        task = new Task("Test task", "Test task description");
+        epic = new Epic("Test epic", "Test epic description");
+        subtask = new Subtask("Test subtask", "Test subtask description", epic.getId());
+        taskManager = new InMemoryTaskManager();
+    }
+
     @Test
-    void addNewTaskAndFindTaskById() {
-        InMemoryTaskManager taskManager = new InMemoryTaskManager();
-
-        Task task = new Task("Test addNewTask", "Test addNewTask description");
-        Epic epic = new Epic("Test addNewEpic", "Test addNewEpic description");
-        Subtask subtask = new Subtask("Test addNewSubtask", "Test addNewSubtask description", epic.getId());
-
+    void shouldAddNewTask() {
         taskManager.addTask(task);
         taskManager.addEpic(epic);
 
         assertNotNull(taskManager.getTaskByID(task.getId()), "Задача не найдена.");
         assertEquals(task, taskManager.getTaskByID(task.getId()), "Задачи не совпадают.");
+    }
+
+    @Test
+    void shouldFindTaskById() {
+        taskManager.addEpic(epic);
 
         assertNotNull(taskManager.getEpicByID(epic.getId()), "Эпик не найден.");
         assertEquals(epic, taskManager.getEpicByID(epic.getId()), "Эпики не совпадают.");
@@ -34,24 +45,39 @@ public class TaskManagerTest {
 
         assertNotNull(taskManager.getSubtaskByID(subtask.getId()), "Подзадача не найдена.");
         assertEquals(subtask, taskManager.getSubtaskByID(subtask.getId()), "Подзадачи не совпадают.");
-
-        final List<Task> tasks = taskManager.getAllTasks();
-        assertNotNull(tasks, "Задачи не возвращаются.");
-        assertEquals(1, tasks.size(), "Неверное количество задач.");
-
-        final List<Task> epics = taskManager.getAllEpics();
-        assertNotNull(epics, "Задачи не возвращаются.");
-        assertEquals(1, epics.size(), "Неверное количество задач.");
-
-        final List<Task> subtasks = taskManager.getAllSubtasks();
-        assertNotNull(subtasks, "Задачи не возвращаются.");
-        assertEquals(1, subtasks.size(), "Неверное количество задач.");
     }
 
     @Test
-    void tasksWithPutIdAndGeneratedIdDoNotConflict() {
-        InMemoryTaskManager taskManager = new InMemoryTaskManager();
+    void shouldRemoveTask() {
+        taskManager.addTask(task);
+        taskManager.removeTaskById(task.getId());
+        assertNull(taskManager.getTaskByID(task.getId()), "Задача не удалена.");
+        assertTrue(taskManager.getAllTasks().isEmpty(), "В списке не должно быть задач.");
+    }
 
+    @Test
+    void shouldRemoveAllTasks() {
+        taskManager.addTask(task);
+        Task task2 = new Task("Task 2", "Description 2");
+        taskManager.addTask(task2);
+        taskManager.removeAllTasks();
+
+        assertTrue(taskManager.getAllTasks().isEmpty(), "В списке не должно быть задач.");
+    }
+
+    @Test
+    void shouldReturnAllTasks() {
+        taskManager.addTask(task);
+        Task task2 = new Task("Task 2", "Description 2");
+        taskManager.addTask(task2);
+
+        assertEquals(2, taskManager.getAllTasks().size(), "В списке должно быть 2 задачи");
+        assertNotNull(taskManager.getAllTasks(), "Задачи не возвращаются.");
+    }
+
+
+    @Test
+    void tasksWithPutIdAndGeneratedIdDoNotConflict() {
         Task generatedId = new Task("Task with generated id", "Task Description");
         taskManager.addTask(generatedId);
 
@@ -68,14 +94,11 @@ public class TaskManagerTest {
 
     @Test
     void correctFieldsOfTaskAfterAddToTaskManager() {
-        InMemoryTaskManager manager = new InMemoryTaskManager();
-
-        Task task = new Task("Test task name", "Test task description");
         task.setId(1);
         task.setStatus(TaskStatus.IN_PROGRESS);
 
-        manager.addTask(task);
-        final Task savedTask = manager.getTaskByID(task.getId());
+        taskManager.addTask(task);
+        final Task savedTask = taskManager.getTaskByID(task.getId());
 
         assertEquals(task.getName(), savedTask.getName(), "Изменилось имя у задачи");
         assertEquals(task.getDescription(), savedTask.getDescription(), "Изменилось Описание у задачи");

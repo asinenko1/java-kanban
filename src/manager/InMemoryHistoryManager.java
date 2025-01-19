@@ -21,10 +21,13 @@ public class InMemoryHistoryManager implements HistoryManager {
             history.removeFirst();
         }
 
-        Task copyOfTask = new Task(task.getName(), task.getDescription());
-        copyOfTask.setId(task.getId());
-        copyOfTask.setStatus(task.getStatus());
-        history.add(copyOfTask);
-        System.out.println("Task was added to history: " + copyOfTask);
+        if (task != null) {
+
+            Task copyOfTask = new Task(task.getName(), task.getDescription());
+            copyOfTask.setId(task.getId());
+            copyOfTask.setStatus(task.getStatus());
+            history.add(copyOfTask);
+            System.out.println("Task was added to history: " + copyOfTask);
+        }
     }
 }

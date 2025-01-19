@@ -7,6 +7,7 @@ import tasks.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -19,11 +20,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
-    public HistoryManager getHistoryManager() {
-        return historyManager;
-    }
-
-    public boolean isIdUnique(int id) {
+    private boolean isIdUnique(int id) {
         return !tasks.containsKey(id) || !epics.containsKey(id) || !subtasks.containsKey(id);
     }
 
@@ -127,27 +124,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskByID(int id) {
         Task task = tasks.get(id);
-        if (task != null) {
-            historyManager.add(task);
-        }
+        historyManager.add(task);
         return task;
     }
 
     @Override
     public Epic getEpicByID(int id) {
         Epic epic = epics.get(id);
-        if (epic != null) {
-            historyManager.add(epic);
-        }
+        historyManager.add(epic);
         return epic;
     }
 
     @Override
     public Subtask getSubtaskByID(int id) {
         Subtask subtask = subtasks.get(id);
-        if (subtask != null) {
-            historyManager.add(subtask);
-        }
+        historyManager.add(subtask);
         return subtask;
     }
 
@@ -254,6 +245,11 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStatus(TaskStatus.IN_PROGRESS);
         }
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
     }
 
 

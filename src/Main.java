@@ -57,8 +57,8 @@ public class Main {
         }
 
         System.out.println("История:");
-        InMemoryTaskManager inMemoryManager = (InMemoryTaskManager) manager;
-        for (Task task : inMemoryManager.getHistoryManager().getHistory()) {
+
+        for (Task task : manager.getHistory()) {
             System.out.println(task);
         }
     }
