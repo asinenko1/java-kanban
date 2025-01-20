@@ -7,20 +7,26 @@ import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskManagerTest {
 
     private Task task;
+    private Task task2;
     private Epic epic;
     private Subtask subtask;
+    private Subtask subtask2;
     private InMemoryTaskManager taskManager;
 
     @BeforeEach
     void init() {
         task = new Task("Test task", "Test task description");
+        task2 = new Task("Task 2", "Description 2");
         epic = new Epic("Test epic", "Test epic description");
         subtask = new Subtask("Test subtask", "Test subtask description", epic.getId());
+        subtask2 = new Subtask("Test subtask2", "Test subtask2 description", epic.getId());
         taskManager = new InMemoryTaskManager();
     }
 
@@ -58,7 +64,6 @@ public class TaskManagerTest {
     @Test
     void shouldRemoveAllTasks() {
         taskManager.addTask(task);
-        Task task2 = new Task("Task 2", "Description 2");
         taskManager.addTask(task2);
         taskManager.removeAllTasks();
 
@@ -68,7 +73,6 @@ public class TaskManagerTest {
     @Test
     void shouldReturnAllTasks() {
         taskManager.addTask(task);
-        Task task2 = new Task("Task 2", "Description 2");
         taskManager.addTask(task2);
 
         assertEquals(2, taskManager.getAllTasks().size(), "В списке должно быть 2 задачи");
@@ -104,6 +108,36 @@ public class TaskManagerTest {
         assertEquals(task.getDescription(), savedTask.getDescription(), "Изменилось Описание у задачи");
         assertEquals(task.getId(), savedTask.getId(), "Изменилось Id у задачи");
         assertEquals(task.getStatus(), savedTask.getStatus(), "Изменился статус у задачи");
+
+    }
+
+    @Test
+    void shouldReturnCorrectHistoryList() {
+        taskManager.addTask(task);
+        taskManager.addTask(task2);
+        taskManager.addEpic(epic);
+
+        taskManager.getTaskByID(task.getId());
+        taskManager.getTaskByID(task2.getId());
+        taskManager.getEpicByID(epic.getId());
+
+        assertNotNull(taskManager.getHistory(), "История не может быть пустой");
+        assertEquals(3, taskManager.getHistory().size(), "В истории должно быть 3 задачи");
+        assertEquals(task, taskManager.getHistory().getFirst(), "Первая задача не совпадает с исходной");
+    }
+
+    @Test
+    void shouldReturnSubtasksByEpicId() {
+        taskManager.addEpic(epic);
+        subtask.setEpicId(epic.getId());
+        subtask2.setEpicId(epic.getId());
+        taskManager.addSubtask(subtask);
+        taskManager.addSubtask(subtask2);
+
+        final List<Subtask> subtasks = taskManager.getSubtasksByEpic(epic.getId());
+
+        assertEquals(2, subtasks.size(), "В эпике должно быть 2 задачи");
+        assertEquals(subtask2, subtasks.get(1), "Задачи должны совпадать");
 
     }
 
