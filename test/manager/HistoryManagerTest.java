@@ -26,12 +26,42 @@ public class HistoryManagerTest {
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
         assertNotNull(history, "История не пустая.");
-        assertEquals(1, history.size(), "История не пустая.");
+
+        Task task2 = new Task("name2", "description 2");
+        task2.setId(2);
+        historyManager.add(task2);
+
+        assertEquals(2, historyManager.getHistory().size(), "Должно быть две задачи");
+    }
+
+    @Test
+    void shouldDeleteSameTaskFromHistory() {
+        task.setId(1);
+        historyManager.add(task);
+        historyManager.add(task);
+
+        final List<Task> history = historyManager.getHistory();
+        assertEquals(1, history.size(), "Должна быть только одна задача");
+    }
+
+    @Test
+    void keepLastViewInHistory() {
+        task.setId(1);
+
+        Task task2 = new Task("name 2", "description 2");
+        task2.setId(1);
+
+        historyManager.add(task);
+        historyManager.add(task2);
+
+        final List<Task> history = historyManager.getHistory();
+        assertEquals(1, history.size(), "Должна быть она задача");
+        assertEquals("name 2", history.getFirst().getName(), "Должна отобразиться вторая задача");
+
     }
 
     @Test
     void taskAddedToHistoryManagerSavesPreviousVersionOfTask() {
-
 
         task.setId(13);
         historyManager.add(task);
@@ -52,16 +82,37 @@ public class HistoryManagerTest {
     }
 
     @Test
-    void historyShouldContain10Elements() {
-        for (int i = 1; i <= 11; i++) {
-            Task task = new Task("Task " + i, "Description " + i);
-            task.setId(i);
-            historyManager.add(task);
-        }
+    void shouldChangeOrderAfterView() {
+        Task task2 = new Task("name 2", "description 2");
+        Task task3 = new Task("name 3", "description 3");
+
+        task.setId(1);
+        task2.setId(2);
+        task3.setId(3);
+
+        historyManager.add(task);
+        historyManager.add(task2);
+        historyManager.add(task3);
+
+        historyManager.add(task);
 
         final List<Task> history = historyManager.getHistory();
 
-        assertEquals(10, history.size(), "Количество элементов в истории не должно превышать 10.");
-        assertEquals("Task 2", history.getFirst().getName(), "Первая задача удаляется при превышении лимита");
+
+        assertEquals("name 2", history.get(0).getName());
+        assertEquals("name 3", history.get(1).getName());
+        assertEquals("Test task", history.get(2).getName());
+
+    }
+
+    @Test
+    void shouldRemoveTaskFromHistory() {
+        task.setId(1);
+        historyManager.add(task);
+
+        assertEquals(1,historyManager.getHistory().size());
+
+        historyManager.remove(1);
+        assertEquals(0,historyManager.getHistory().size(), "В истории не должно остаться задач.");
     }
 }

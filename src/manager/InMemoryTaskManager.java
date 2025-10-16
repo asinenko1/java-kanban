@@ -12,9 +12,9 @@ import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private HashMap<Integer, Task> tasks = new HashMap<>();
-    private HashMap<Integer, Epic> epics = new HashMap<>();
-    private HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private final HashMap<Integer, Task> tasks = new HashMap<>();
+    private final HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
     private int idCounter = 1;
 
@@ -146,6 +146,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeTaskById(int id) {
         if (tasks.containsKey(id)) {
             tasks.remove(id);
+            historyManager.remove(id);
         } else {
             System.out.println("Задача с ID " + id + " не найдена. Невозможно удалить задачу. ");
         }
@@ -158,7 +159,9 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.remove(id);
             for (int subtaskId : epic.getSubtasksId()) {
                 subtasks.remove(subtaskId);
+                historyManager.remove(subtaskId);
             }
+            historyManager.remove(id);
         } else {
             System.out.println("Эпик с ID " + id + " не найдена. Невозможно удалить задачу. ");
         }
@@ -172,7 +175,7 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.get(subtask.getEpicId());
             epic.getSubtasksId().remove(Integer.valueOf(id));
             epicStatus(epic);
-
+            historyManager.remove(id);
         } else {
             System.out.println("Подзадача с ID " + id + " не найдена. Невозможно удалить задачу. ");
         }
