@@ -70,7 +70,7 @@ public class TaskManagerTest {
         assertNotNull(taskManager.getHistory(), "История не может быть пустой");
 
         taskManager.removeTaskById(task.getId());
-        assertEquals(0,taskManager.getHistory().size(), "В истории не должно быть задач");
+        assertEquals(0, taskManager.getHistory().size(), "В истории не должно быть задач");
     }
 
     @Test
