@@ -10,6 +10,7 @@ import tasks.TaskStatus;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TaskManagerTest {
 
@@ -59,6 +60,30 @@ public class TaskManagerTest {
         taskManager.removeTaskById(task.getId());
         assertNull(taskManager.getTaskByID(task.getId()), "Задача не удалена.");
         assertTrue(taskManager.getAllTasks().isEmpty(), "В списке не должно быть задач.");
+    }
+
+    @Test
+    void shouldRemoveTaskFromHistoryWhenRemovedFromTaskManager() {
+        taskManager.addTask(task);
+        taskManager.getTaskByID(task.getId());
+
+        assertNotNull(taskManager.getHistory(), "История не может быть пустой");
+
+        taskManager.removeTaskById(task.getId());
+        assertEquals(0, taskManager.getHistory().size(), "В истории не должно быть задач");
+    }
+
+    @Test
+    void shouldRemoveSubtaskIdFromEpicWhenSubtaskRemoved() {
+        taskManager.addEpic(epic);
+        subtask.setEpicId(epic.getId());
+        taskManager.addSubtask(subtask);
+
+        assertEquals(1, epic.getSubtasksId().size(), "В эпике должна быть одна подзадача!");
+
+        taskManager.removeSubtaskById(subtask.getId());
+
+        assertEquals(0, epic.getSubtasksId().size(), "В эпике не должно остаться ID");
     }
 
     @Test
@@ -140,5 +165,17 @@ public class TaskManagerTest {
         assertEquals(subtask2, subtasks.get(1), "Задачи должны совпадать");
 
     }
+
+//    @Test
+//    void shouldProtectFromSetters() {
+//        taskManager.addTask(task);
+//        final Task savedTask = taskManager.getTaskByID(task.getId());
+//
+//        task.setName("New name");
+//        task.setDescription("New Description");
+//
+//        assertEquals("Test task", savedTask.getName(), "Имя не должно меняться");
+//        assertEquals("Test task description", savedTask.getName(), "Описание не должно меняться");
+//    }
 
 }
