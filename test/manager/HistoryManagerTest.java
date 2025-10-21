@@ -98,11 +98,7 @@ public class HistoryManagerTest {
 
         final List<Task> history = historyManager.getHistory();
 
-
-        assertEquals("name 2", history.get(0).getName());
-        assertEquals("name 3", history.get(1).getName());
-        assertEquals("Test task", history.get(2).getName());
-
+        assertEquals(List.of(task2, task3, task), history);
     }
 
     @Test
@@ -110,9 +106,69 @@ public class HistoryManagerTest {
         task.setId(1);
         historyManager.add(task);
 
-        assertEquals(1,historyManager.getHistory().size());
+        assertEquals(1, historyManager.getHistory().size());
 
         historyManager.remove(1);
-        assertEquals(0,historyManager.getHistory().size(), "В истории не должно остаться задач.");
+        assertEquals(0, historyManager.getHistory().size(), "В истории не должно остаться задач.");
+    }
+
+    @Test
+    void shouldRemoveFirstNode() {
+        Task task2 = new Task("name 2", "description 2");
+        Task task3 = new Task("name 3", "description 3");
+
+        task.setId(1);
+        task2.setId(2);
+        task3.setId(3);
+
+        historyManager.add(task);
+        historyManager.add(task2);
+        historyManager.add(task3);
+
+        historyManager.remove(1);
+
+        final List<Task> history = historyManager.getHistory();
+
+        assertEquals(List.of(task2, task3), history);
+    }
+
+    @Test
+    void shouldRemoveLastNode() {
+        Task task2 = new Task("name 2", "description 2");
+        Task task3 = new Task("name 3", "description 3");
+
+        task.setId(1);
+        task2.setId(2);
+        task3.setId(3);
+
+        historyManager.add(task);
+        historyManager.add(task2);
+        historyManager.add(task3);
+
+        historyManager.remove(3);
+
+        final List<Task> history = historyManager.getHistory();
+
+        assertEquals(List.of(task, task2), history);
+    }
+
+    @Test
+    void shouldRemoveMiddleNode() {
+        Task task2 = new Task("name 2", "description 2");
+        Task task3 = new Task("name 3", "description 3");
+
+        task.setId(1);
+        task2.setId(2);
+        task3.setId(3);
+
+        historyManager.add(task);
+        historyManager.add(task2);
+        historyManager.add(task3);
+
+        historyManager.remove(2);
+
+        final List<Task> history = historyManager.getHistory();
+
+        assertEquals(List.of(task, task3), history);
     }
 }
