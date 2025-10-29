@@ -17,9 +17,9 @@ public interface TaskManager {
 
     ArrayList<Task> getAllTasks();
 
-    ArrayList<Task> getAllEpics();
+    ArrayList<Epic> getAllEpics();
 
-    ArrayList<Task> getAllSubtasks();
+    ArrayList<Subtask> getAllSubtasks();
 
     void removeAllTasks();
 
