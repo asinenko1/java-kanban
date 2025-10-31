@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
+import tasks.TaskStatus;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,47 +38,67 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void shouldSaveSeveralTasks() throws IOException {
+    void shouldSaveAndLoadTasks() {
+
         Task task = new Task("Task name", "Task description");
         manager.addTask(task);
-
         Epic epic = new Epic("Epic name", "Epic description");
         manager.addEpic(epic);
-
         Subtask subtask = new Subtask("Subtask name", "Subtask description", epic.getId());
-        manager.addTask(subtask);
+        manager.addSubtask(subtask);
 
-        String data = Files.readString(file.toPath());
-        String[] lines = data.trim().split("\\R");
+        int subtaskIdBefore = subtask.getEpicId();
 
-        assertEquals("id,type,name,status,description,epic", lines[0], "Первая строка должна быть заголовком");
-        assertEquals(4, lines.length, "Должно получится 4 строки");
+        FileBackedTaskManager manager2 = FileBackedTaskManager.loadFromFile(file);
 
-        assertTrue(data.contains("Task name"), "В списке должно храниться название задачи");
-        assertTrue(data.contains("Epic description"), "В списке должно храниться описание эпика");
-        assertTrue(data.contains("SUBTASK"), "В списке должна храниться подзадача");
+        assertEquals(manager.getAllTasks().size(), manager2.getAllTasks().size(),"Количество задач должно совпадать" );
+        assertEquals( manager.getAllSubtasks().size(), manager2.getAllSubtasks().size(),"В файле должна быть 1 подзадача" );
+        assertEquals(manager.getAllEpics().size(), manager2.getAllEpics().size(),"В файле должна быть 1 эпик" );
+
+        assertEquals(manager.getAllTasks(), manager2.getAllTasks(), "Данные должны совпадать");
+        assertEquals(manager.getAllEpics(), manager2.getAllEpics(), "Данные должны совпадать");
+        assertEquals(manager.getAllSubtasks(), manager2.getAllSubtasks(), "Данные должны совпадать");
+
+        assertEquals(subtaskIdBefore,manager2.getAllSubtasks().get(0).getEpicId(), "Подзадача должна ссылаться на эпик");
 
     }
 
     @Test
-    void  shouldLoadSeveralTasks()  {
+    void shouldDeleteTask() {
         Task task = new Task("Task name", "Task description");
         manager.addTask(task);
-
         Epic epic = new Epic("Epic name", "Epic description");
         manager.addEpic(epic);
-
         Subtask subtask = new Subtask("Subtask name", "Subtask description", epic.getId());
         manager.addSubtask(subtask);
 
-        FileBackedTaskManager load = FileBackedTaskManager.loadFromFile(file);
 
-        assertEquals(1, load.getAllTasks().size(),"В файле должна быть 1 задача" );
-        assertEquals(1, load.getAllSubtasks().size(),"В файле должна быть 1 подзадача" );
-        assertEquals(1, load.getAllEpics().size(),"В файле должна быть 1 эпик" );
+        manager.removeTaskById(task.getId());
 
+        FileBackedTaskManager manager2 = FileBackedTaskManager.loadFromFile(file);
 
-        assertEquals(epic.getId(),load.getAllSubtasks().get(0).getEpicId(), "Подзадача должна ссылаться на эпик");
-        assertEquals(epic.getStatus(),load.getAllEpics().get(0).getStatus(), "Статус эпика должно совпадать");
+        assertEquals(0, manager2.getAllTasks().size(), "Задачи быть не должно");
     }
+
+    @Test
+    void shouldUpdateTaskData() {
+        Task task = new Task("Task name", "Task description");
+        manager.addTask(task);
+
+        Task updatedTask = new Task("Updated name", "Updated description");
+        updatedTask.setId(task.getId());
+        updatedTask.setStatus(TaskStatus.IN_PROGRESS);
+
+        manager.updateTask(updatedTask);
+
+        FileBackedTaskManager manager2 = FileBackedTaskManager.loadFromFile(file);
+        Task task2 = manager2.getTaskByID(task.getId());
+
+        assertEquals(manager.getAllTasks().size(), manager2.getAllTasks().size(),"Количество задач должно совпадать" );
+        assertEquals("Updated name", task2.getName(), "Name should be updated");
+        assertEquals(updatedTask.getDescription(), task2.getDescription(),"Description should be updated");
+        assertEquals(TaskStatus.IN_PROGRESS,updatedTask.getStatus(),"Status should be updated");
+
+    }
+
 }
