@@ -1,6 +1,46 @@
-# Сергей, добрый день!  
+# Трекер задач
 
-Вот задание 6 спринта, только я не совсем поняла про защиту от внешнего изменения данных. 
-Я так понимаю надо будет изменять методы добавления задач?
+## Функциональность
 
-**Хорошей недели!**
+### Основные возможности:
+- **Управление задачами**: создание, обновление, удаление задач
+- **Типы задач**:
+    - Task (обычная задача)
+    - Epic (сложная задача, состоящая из подзадач)
+    - Subtask (подзадача, входящая в Epic)
+- **История просмотров**: автоматическое сохранение истории просмотров задач
+
+### Менеджеры задач:
+- `InMemoryTaskManager` - хранение задач в оперативной памяти
+- `InMemoryHistoryManager` - управление историей просмотров в памяти
+- `FileBackedTaskManager` - сохранение задач в файл
+
+## Структура проекта
+
+``` java-kanban/
+├── src/
+│   ├── manager/                    # Менеджеры задач и сериализация
+│   │   ├── InMemoryTaskManager.java
+│   │   ├── InMemoryHistoryManager.java
+│   │   ├── FileBackedTaskManager.java
+│   │   ├── HistoryManager.java
+│   │   ├── ManagerSaveException.java
+│   │   ├── Managers.java
+│   │   ├── TaskManager.java             
+│   │   └── TaskTransformer.java   
+│   ├── tasks/                      # Модель задач
+│   │   ├── Task.java
+│   │   ├── Epic.java
+│   │   ├── Subtask.java
+│   │   ├── TaskStatus.java
+│   │   └── TaskType.java
+│   └── Main.java                   # Точка входа
+│
+├── test/
+│   └── manager/                    # Юнит-тесты
+│       ├── FileBackedTaskManagerTest.java
+│       ├── HistoryManagerTest.java
+│       └── ManagersTest.java
+│       └── TaskManagerTest.java
+```
+
