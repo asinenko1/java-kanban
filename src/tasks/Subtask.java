@@ -6,7 +6,6 @@ public class Subtask extends Task {
     public Subtask(String name, String description, int epicId) {
         super(name, description);
         this.epicId = epicId;
-        this.type = TaskType.SUBTASK;
     }
 
     public int getEpicId() {
@@ -16,8 +15,14 @@ public class Subtask extends Task {
     public void setEpicId(int epicId) {
         if (epicId == this.getId()) {
             System.out.println("Подзадачу нельзя сделать своим же эпиком!");
-            return;
         } else {
             this.epicId = epicId;
         }
-    }}
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
+    }
+
+}

@@ -55,7 +55,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.isEmpty()) continue;
 
                 Task task = TaskTransformer.fromString(line);
-                assert task != null;
                 TaskType type = task.getType();
 
                 int id = task.getId();

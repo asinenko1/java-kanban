@@ -3,7 +3,6 @@ package tasks;
 import java.util.Objects;
 
 public class Task {
-    protected TaskType type;
     private String name;
     private String description;
     private int id;
@@ -12,7 +11,6 @@ public class Task {
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.type = TaskType.TASK;
     }
 
     public void setId(int newID) {
@@ -52,7 +50,7 @@ public class Task {
     }
 
     public TaskType getType() {
-        return type;
+        return TaskType.TASK;
     }
 
     @Override
