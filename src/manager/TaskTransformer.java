@@ -2,17 +2,30 @@ package manager;
 
 import tasks.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 
 public final class TaskTransformer {
     private TaskTransformer() {}
 
      static String toString(Task task) {
         String epicId = "";
+        String duration = "";
+        String startTime = "";
 
         if (task.getType() == TaskType.SUBTASK) {
             Subtask sb = (Subtask) task;
             epicId = String.valueOf(sb.getEpicId());
         }
+
+        if (task.getDuration() != null) {
+            duration = String.valueOf(task.getDuration().toMinutes());
+        }
+
+         if (task.getDuration() != null) {
+             startTime = task.getStartTime().toString();
+         }
 
         return String.join(",",
                 String.valueOf(task.getId()),
@@ -20,6 +33,8 @@ public final class TaskTransformer {
                 task.getName(),
                 task.getStatus().name(),
                 task.getDescription(),
+                duration,
+                startTime,
                 epicId
         );
     }
@@ -32,29 +47,46 @@ public final class TaskTransformer {
         String name = data[2];
         TaskStatus status = TaskStatus.valueOf(data[3]);
         String description = data[4];
+
+        Duration duration = null;
+        if(!data[5].isEmpty()) {
+            duration = Duration.ofMinutes(Long.parseLong(data[5]));
+        }
+
+        LocalDateTime startTime = null;
+        if(!data[6].isEmpty()) {
+            startTime = LocalDateTime.parse(data[6]);
+        }
+
         int epicId = 0;
         if (type == TaskType.SUBTASK) {
-            epicId = Integer.parseInt(data[5]);
+            epicId = Integer.parseInt(data[7]);
         }
+
+        Task task;
 
         switch (type) {
             case TASK:
-                Task task = new Task(name, description);
-                task.setId(id);
-                task.setStatus(status);
-                return task;
+                task = new Task(name, description);
+                break;
             case EPIC:
-                Epic epic = new Epic(name, description);
-                epic.setId(id);
-                epic.setStatus(status);
-                return epic;
+                task = new Epic(name, description);
+                break;
             case SUBTASK:
-                Subtask subtask = new Subtask(name, description, epicId);
-                subtask.setId(id);
-                subtask.setStatus(status);
-                return subtask;
+                task = new Subtask(name, description, epicId);
+                break;
             default:
                 return null;
         }
+
+        task.setId(id);
+        task.setStatus(status);
+
+        if (type != TaskType.EPIC) {
+            task.setDuration(duration);
+            task.setStartTime(startTime);
+        }
+
+        return task;
     }
 }

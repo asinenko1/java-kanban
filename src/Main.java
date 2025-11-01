@@ -25,7 +25,7 @@ public class Main {
         System.out.println("Все эпики: " + manager.getAllEpics());
         System.out.println("Подзадачи эпика: " + manager.getSubtasksByEpic(epic1.getId()));
 
-        manager.updateTask(subtask1);
+        manager.updateSubtask(subtask1);
 
         System.out.println(epic1.getStatus());
 
