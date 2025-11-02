@@ -42,10 +42,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldAddSubtask() {
         Epic epic = new Epic("Test epic", "Test epic description");
+        taskManager.addEpic(epic);
         Subtask subtask = new Subtask("Test subtask", "Test epic subtask", epic.getId());
         taskManager.addSubtask(subtask);
 
-        assertTrue(taskManager.getAllEpics().contains(subtask));
+        assertTrue(taskManager.getAllSubtasks().contains(subtask));
     }
 
     @Test
