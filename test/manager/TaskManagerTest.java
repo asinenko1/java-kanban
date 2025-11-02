@@ -180,5 +180,24 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 "Пересечение времени задач должно приводить к исключению");
     }
 
+    @Test
+    void shouldSortPrioritizedTasks() {
+        LocalDateTime time = LocalDateTime.of(2025, 11, 1, 15, 0);
+        Task task = new Task("Test task", "Test task description", Duration.ofMinutes(60), time);
+        Task task2 = new Task("Task 2", "Description 2", Duration.ofHours(1), time.plusHours(4));
+        Task task3 = new Task("Task 3", "Description 3", Duration.ofHours(5), time.minusDays(5));
+        Task task4 = new Task("Test task4", "description4", Duration.ofMinutes(60), time.plusMinutes(60));
+
+        taskManager.addTask(task);
+        taskManager.addTask(task2);
+        taskManager.addTask(task3);
+        taskManager.addTask(task4);
+
+        assertEquals(task3, taskManager.getPrioritizedTasks().get(0), "The earliest task should be first");
+        assertEquals(task, taskManager.getPrioritizedTasks().get(1), "15:00 the second");
+        assertEquals(task4, taskManager.getPrioritizedTasks().get(2), "16:00 the third");
+        assertEquals(task2, taskManager.getPrioritizedTasks().get(3), "The latest task should be last");
+    }
+
 
 }

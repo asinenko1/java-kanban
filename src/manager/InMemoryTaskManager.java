@@ -25,6 +25,10 @@ public class InMemoryTaskManager implements TaskManager {
         return !tasks.containsKey(id) && !epics.containsKey(id) && !subtasks.containsKey(id);
     }
 
+    private final TreeSet<Task> prioritizedTasks = new TreeSet<>(
+            Comparator.comparing(Task::getStartTime).thenComparing(Task::getId)
+    );
+
     @Override
     public void addTask(Task task) {
 
@@ -289,8 +293,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void epicTime(Epic epic) {
         Duration total = Duration.ZERO;
-        LocalDateTime earliest = null;
-        LocalDateTime latest = null;
+        LocalDateTime earliest = LocalDateTime.MAX;
+        LocalDateTime latest = LocalDateTime.MIN;
 
         for (Integer sId : epic.getSubtasksId()) {
             Subtask subtask = subtasks.get(sId);
@@ -304,21 +308,21 @@ public class InMemoryTaskManager implements TaskManager {
             LocalDateTime endTimeSubtask = subtask.getEndTime();
 
             if (startTimeSubtask != null) {
-                if (earliest == null || startTimeSubtask.isBefore(earliest)) {
+                if (startTimeSubtask.isBefore(earliest)) {
                     earliest = startTimeSubtask;
                 }
             }
 
             if (endTimeSubtask != null) {
-                if (latest == null || endTimeSubtask.isAfter(latest)) {
+                if (endTimeSubtask.isAfter(latest)) {
                     latest = endTimeSubtask;
                 }
             }
         }
 
         epic.setDuration(total.isZero() ? null : total);
-        epic.setStartTime(earliest);
-        epic.setEndTime(latest);
+        epic.setStartTime(earliest.equals(LocalDateTime.MAX) ? null : earliest);
+        epic.setEndTime(latest.equals(LocalDateTime.MIN) ? null : latest);
     }
 
     @Override
@@ -326,9 +330,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private final TreeSet<Task> prioritizedTasks = new TreeSet<>(
-            Comparator.comparing(Task::getStartTime).thenComparing(Task::getId)
-    );
+
 
     private void addToPrioritized(Task task) {
         if (task != null && task.getStartTime() != null) {
@@ -366,8 +368,8 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public Set<Task> getPrioritizedTasks() {
-        return new TreeSet<>(prioritizedTasks);
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks);
     }
 
 }
