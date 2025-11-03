@@ -6,8 +6,7 @@ import tasks.Task;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HistoryManagerTest {
 
@@ -32,6 +31,24 @@ public class HistoryManagerTest {
         historyManager.add(task2);
 
         assertEquals(2, historyManager.getHistory().size(), "Должно быть две задачи");
+    }
+
+    @Test
+    void shouldReturnEmptyHistory() {
+        final List<Task> history = historyManager.getHistory();
+        assertTrue(history.isEmpty(), "History  should  be empty");
+    }
+
+    @Test
+    void shouldRemoveTask() {
+        historyManager.add(task);
+
+        historyManager.remove(task.getId());
+
+        final List<Task> history = historyManager.getHistory();
+
+        assertEquals(0, history.size());
+
     }
 
     @Test

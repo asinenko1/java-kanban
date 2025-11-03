@@ -20,7 +20,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             List<String> lines = new ArrayList<>();
 
-            lines.add("id,type,name,status,description,epic");
+            lines.add("id,type,name,status,description,duration, startTime, epic");
 
             for (Task task : getAllTasks()) {
                 lines.add(TaskTransformer.toString(task));
@@ -55,6 +55,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.isEmpty()) continue;
 
                 Task task = TaskTransformer.fromString(line);
+                if (task == null) continue;
                 TaskType type = task.getType();
 
                 int id = task.getId();

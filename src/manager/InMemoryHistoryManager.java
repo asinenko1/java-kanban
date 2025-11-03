@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private class Node {
+    private static class Node {
         public Task task;
         public Node next;
         public Node prev;
