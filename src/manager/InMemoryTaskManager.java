@@ -1,5 +1,6 @@
 package manager;
 
+import manager.exceptions.NotFoundException;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
@@ -139,72 +140,78 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskByID(int id) {
         Task task = tasks.get(id);
-        if (task != null) historyManager.add(task);
+        if (task == null) {
+            throw new NotFoundException("Задача не найдена");
+        }
+        historyManager.add(task);
         return task;
     }
 
     @Override
     public Epic getEpicByID(int id) {
         Epic epic = epics.get(id);
-        if (epic != null) historyManager.add(epic);
+        if (epic == null) {
+            throw new NotFoundException("Эпик не найден");
+        }
+        historyManager.add(epic);
         return epic;
     }
 
     @Override
     public Subtask getSubtaskByID(int id) {
         Subtask subtask = subtasks.get(id);
-        if (subtask != null) historyManager.add(subtask);
+        if (subtask == null) {
+            throw new NotFoundException("Подзадача не найдена");
+        }
+        historyManager.add(subtask);
         return subtask;
     }
 
     @Override
     public void removeTaskById(int id) {
-        if (tasks.containsKey(id)) {
-            tasks.remove(id);
-            historyManager.remove(id);
-        } else {
-            System.out.println("Задача с ID " + id + " не найдена. Невозможно удалить задачу. ");
+        if (!tasks.containsKey(id)) {
+            throw new NotFoundException("Задача не найдена. Невозможно удалить");
         }
-
+        tasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
     public void removeEpicById(int id) {
-        if (epics.containsKey(id)) {
-            Epic epic = epics.remove(id);
-            for (int subtaskId : epic.getSubtasksId()) {
-                subtasks.remove(subtaskId);
-                historyManager.remove(subtaskId);
-            }
-            historyManager.remove(id);
-        } else {
-            System.out.println("Эпик с ID " + id + " не найдена. Невозможно удалить задачу. ");
+        if (!epics.containsKey(id)) {
+            throw new NotFoundException("Эпик не найден. Невозможно удалить");
         }
 
+        Epic epic = epics.remove(id);
+        for (int subtaskId : epic.getSubtasksId()) {
+            subtasks.remove(subtaskId);
+            historyManager.remove(subtaskId);
+        }
+        historyManager.remove(id);
     }
 
     @Override
     public void removeSubtaskById(int id) {
-        if (subtasks.containsKey(id)) {
-            Subtask subtask = subtasks.remove(id);
-            Epic epic = epics.get(subtask.getEpicId());
-            epic.getSubtasksId().remove(Integer.valueOf(id));
-            epicStatus(epic);
-            historyManager.remove(id);
-            epicTime(epic);
-        } else {
-            System.out.println("Подзадача с ID " + id + " не найдена. Невозможно удалить задачу. ");
+        if (!subtasks.containsKey(id)) {
+            throw new NotFoundException("Подзадача не найдена. Невозможно удалить");
         }
 
+        Subtask subtask = subtasks.remove(id);
+        Epic epic = epics.get(subtask.getEpicId());
+        epic.getSubtasksId().remove(Integer.valueOf(id));
+        epicStatus(epic);
+        historyManager.remove(id);
+        epicTime(epic);
     }
 
     @Override
     public void updateTask(Task task) {
-        Task previous = tasks.get(task.getId());
-        if (previous == null) {
-            System.out.println("Задача " + task + " не найдена.");
-            return;
+        if (!tasks.containsKey(task.getId())) {
+            throw new NotFoundException("Задача не найдена. Невозможно обновить");
         }
+
+        Task previous = tasks.get(task.getId());
+
         removeFromPrioritized(previous);
 
         if (hasIntersection(task)) {
@@ -213,28 +220,25 @@ public class InMemoryTaskManager implements TaskManager {
         }
         tasks.put(task.getId(), task);
         addToPrioritized(task);
-
     }
 
     @Override
     public void updateEpic(Epic epic) {
-        Epic previous = epics.get(epic.getId());
-        if (previous == null) {
-            System.out.println("Эпик " + epic + " не найден.");
-            return;
+        if (!epics.containsKey(epic.getId())) {
+            throw new NotFoundException("Эпик " + epic + " не найден. Невозможно обновить");
         }
 
+        Epic previous = epics.get(epic.getId());
         previous.setName(epic.getName());
         previous.setDescription(epic.getDescription());
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        Subtask previous = subtasks.get(subtask.getId());
-        if (previous == null) {
-            System.out.println("Подзадача " + subtask + " не найдена.");
-            return;
+        if (!subtasks.containsKey(subtask.getId())) {
+            throw new NotFoundException("Подзадача " + subtask + " не найдена. Невозможно обновить");
         }
+        Subtask previous = subtasks.get(subtask.getId());
 
         subtask.setEpicId(previous.getEpicId());
         removeFromPrioritized(previous);
@@ -243,7 +247,6 @@ public class InMemoryTaskManager implements TaskManager {
             addToPrioritized(previous);
             throw new IllegalStateException("Нельзя обновить задание. Задача пересекается по времени");
         }
-
 
         subtasks.put(subtask.getId(), subtask);
         addToPrioritized(subtask);
@@ -329,7 +332,6 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
-
 
 
     private void addToPrioritized(Task task) {

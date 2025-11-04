@@ -16,7 +16,7 @@ public class TimeAdapters {
 
     private static final DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-    public static final TypeAdapter<LocalDateTime> LOCAL_DATE_TIME_TYPE_ADAPTER = new TypeAdapter<LocalDateTime>() {
+    public static final TypeAdapter<LocalDateTime> LOCAL_DATE_TIME_TYPE_ADAPTER = new TypeAdapter<>() {
         @Override
         public void write(JsonWriter jsonWriter, LocalDateTime localDateTime) throws IOException {
             if (localDateTime == null) {
@@ -37,7 +37,7 @@ public class TimeAdapters {
         }
     };
 
-    public static final TypeAdapter<Duration> DURATION_TYPE_ADAPTER = new TypeAdapter<Duration>() {
+    public static final TypeAdapter<Duration> DURATION_TYPE_ADAPTER = new TypeAdapter<>() {
         @Override
         public void write(JsonWriter jsonWriter, Duration d) throws IOException {
             if (d == null) {
@@ -59,7 +59,7 @@ public class TimeAdapters {
 
     public static GsonBuilder bothAdapters(GsonBuilder gb) {
         return gb
-                .registerTypeAdapter(LocalDateTime.class, LOCAL_DATE_TIME_TYPE_ADAPTER)
-                .registerTypeAdapter(Duration.class, DURATION_TYPE_ADAPTER);
+                .registerTypeAdapter(LocalDateTime.class, LOCAL_DATE_TIME_TYPE_ADAPTER.nullSafe())
+                .registerTypeAdapter(Duration.class, DURATION_TYPE_ADAPTER.nullSafe());
     }
 }

@@ -34,7 +34,7 @@
 │   │   ├── Subtask.java
 │   │   ├── TaskStatus.java
 │   │   └── TaskType.java
-│   └── Main.java                   # Точка входа
+│   ├── http/ 
 │
 ├── test/
 │   └── manager/                    # Юнит-тесты

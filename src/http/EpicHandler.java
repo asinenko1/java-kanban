@@ -1,24 +1,27 @@
 package http;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.TaskManager;
 import manager.exceptions.NotFoundException;
-import tasks.Task;
+import tasks.Epic;
+import tasks.Subtask;
+import tasks.TaskStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+
 import java.util.List;
 
-public class TaskHandler extends BaseHttpHandler implements HttpHandler {
+
+public class EpicHandler extends BaseHttpHandler implements HttpHandler {
     private final TaskManager taskManager;
     private final Gson gson;
 
 
-    public TaskHandler(TaskManager taskManager, Gson gson) {
+    public EpicHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
         this.gson = gson;
     }
@@ -43,14 +46,18 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
     private void handleGet(HttpExchange h, String path) throws IOException {
         String[] splitStrings = path.split("/");
 
+
         if (splitStrings.length == 2) {
-            List<Task> tasks = taskManager.getAllTasks();
-            sendText(h, gson.toJson(tasks));
+            List<Epic> epics = taskManager.getAllEpics();
+            sendText(h, gson.toJson(epics));
         } else if (splitStrings.length == 3) {
             int id = Integer.parseInt(splitStrings[2]);
-            Task task = taskManager.getTaskByID(id);
-            sendText(h, gson.toJson(task));
-
+            Epic epic = taskManager.getEpicByID(id);
+            sendText(h, gson.toJson(epic));
+        } else if (splitStrings.length == 4 && "subtasks".equals(splitStrings[3])) {
+            int id = Integer.parseInt(splitStrings[2]);
+            List<Subtask> subtasks = taskManager.getSubtasksByEpic(id);
+            sendText(h, gson.toJson(subtasks));
         } else {
             throw new NotFoundException("Wrong path");
         }
@@ -61,25 +68,17 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         InputStream is = h.getRequestBody();
         String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         try {
-            Task task = gson.fromJson(body, Task.class);
-
-            if (task == null) {
-                sendBadRequest(h);
-                return;
-            }
-            if (task.getId() == 0) {
-                taskManager.addTask(task);
+            Epic epic = gson.fromJson(body, Epic.class);
+            epic.setStatus(TaskStatus.NEW);
+            if (epic.getId() == 0) {
+                taskManager.addEpic(epic);
             } else {
-                taskManager.updateTask(task);
+                taskManager.updateEpic(epic);
             }
             sendSuccess(h);
-        } catch (JsonSyntaxException e) {
-            sendBadRequest(h);
         } catch (Exception e) {
-            System.out.println("Other exception");
             handleException(h, e);
         }
-
 
     }
 
@@ -87,11 +86,11 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         String[] splitStrings = path.split("/");
 
         if (splitStrings.length == 2) {
-            taskManager.removeAllTasks();
+            taskManager.removeAllEpics();
             sendSuccess(h);
         } else if (splitStrings.length == 3) {
             int id = Integer.parseInt(splitStrings[2]);
-            taskManager.removeTaskById(id);
+            taskManager.removeEpicById(id);
             sendGood(h);
         } else {
             throw new NotFoundException("Wrong path");

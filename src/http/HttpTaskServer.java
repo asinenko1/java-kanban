@@ -2,16 +2,14 @@ package http;
 
 import com.google.gson.*;
 import com.sun.net.httpserver.HttpServer;
+import manager.InMemoryTaskManager;
 import manager.Managers;
 import manager.TaskManager;
-import tasks.Epic;
-import tasks.Subtask;
-import tasks.Task;
+
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.time.Duration;
-import java.time.LocalDateTime;
+
 
 public class HttpTaskServer {
     public static final int PORT = 8080;
@@ -20,12 +18,18 @@ public class HttpTaskServer {
     private final TaskManager manager;
     private final Gson gson;
 
-    public HttpTaskServer() throws IOException {
+    public HttpTaskServer(TaskManager manager) throws IOException {
         this.server = HttpServer.create(new InetSocketAddress(PORT), 0);
         this.manager = Managers.getDefault();
         this.gson = buildGson();
         server.createContext("/tasks", new TaskHandler(manager, gson));
+        server.createContext("/epics", new EpicHandler(manager, gson));
+        server.createContext("/subtasks", new SubtaskHandler(manager, gson));
+        server.createContext("/tasks/history", new HistoryHandler(manager, gson));
+        server.createContext("/tasks/prioritized", new PrioritizedHandler(manager, gson));
     }
+
+    public static Gson getGson() {return buildGson();}
 
     public void start() {
         server.start();
@@ -48,6 +52,7 @@ public class HttpTaskServer {
 
 
     public static void main(String[] args) throws IOException {
-        new HttpTaskServer().start();
+        TaskManager manager = new InMemoryTaskManager();
+        new HttpTaskServer(manager).start();
     }
 }
