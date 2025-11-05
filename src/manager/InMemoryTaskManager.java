@@ -79,6 +79,10 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
+        if (hasIntersection(subtask)) {
+            throw new IllegalStateException("Нельзя добавить задание. Задача пересекается по времени");
+        }
+
         if (!isIdUnique(subtask.getId())) {
             System.out.println("Подзадача с таким Id уже существует. Нельзя добавить подзадачу.");
             return;

@@ -64,21 +64,11 @@ public class HttpTaskManagerHistoryTest {
         Subtask sb = new Subtask("S1", "D1", epic.getId());
         manager.addSubtask(sb);
 
-        client.send(HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/epics/"+epic.getId()))
-                        .GET()
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-        client.send(HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/subtasks/"+sb.getId()))
-                        .GET()
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-        client.send(HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8080/tasks/"+task.getId()))
-                        .GET()
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
+
+        manager.getEpicByID(epic.getId());
+        manager.getSubtaskByID(sb.getId());
+        manager.getTaskByID(task.getId());
+
 
         URI url = URI.create("http://localhost:8080/tasks/history");
         HttpResponse<String> response = client.send(

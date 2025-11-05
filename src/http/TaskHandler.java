@@ -3,7 +3,6 @@ package http;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import manager.TaskManager;
 import manager.exceptions.NotFoundException;
 import tasks.Task;
@@ -13,7 +12,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class TaskHandler extends BaseHttpHandler implements HttpHandler {
+public class TaskHandler extends BaseHttpHandler {
     private final TaskManager taskManager;
     private final Gson gson;
 
@@ -75,11 +74,12 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
             sendSuccess(h);
         } catch (JsonSyntaxException e) {
             sendBadRequest(h);
+        } catch (IllegalStateException e) {
+            sendHasInteractions(h);
         } catch (Exception e) {
             System.out.println("Other exception");
             handleException(h, e);
         }
-
 
     }
 

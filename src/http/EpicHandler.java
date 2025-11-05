@@ -2,12 +2,10 @@ package http;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import manager.TaskManager;
 import manager.exceptions.NotFoundException;
 import tasks.Epic;
 import tasks.Subtask;
-import tasks.TaskStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
-public class EpicHandler extends BaseHttpHandler implements HttpHandler {
+public class EpicHandler extends BaseHttpHandler {
     private final TaskManager taskManager;
     private final Gson gson;
 
@@ -69,7 +67,6 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
         String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         try {
             Epic epic = gson.fromJson(body, Epic.class);
-            epic.setStatus(TaskStatus.NEW);
             if (epic.getId() == 0) {
                 taskManager.addEpic(epic);
             } else {
