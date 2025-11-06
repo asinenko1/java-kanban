@@ -24,6 +24,14 @@ public class Task {
         this.startTime = startTime;
     }
 
+    public Task(String name, String description, TaskStatus taskStatus, Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.description = description;
+        this.duration = duration;
+        this.status = taskStatus;
+        this.startTime = startTime;
+    }
+
     public void setId(int newID) {
         if (newID < 0) {
             System.out.println("Id должен быть больше нуля!");
